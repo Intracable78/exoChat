@@ -24,12 +24,14 @@ app.get('/', (req, res) => {
 
 let messageDatabase;
 
+
 io.on('connection', (socket) => {
     console.log(messageDatabase)
-    socket.on('chat message', (msg) => {
+    socket.on('chat message', async (msg) => {
         io.emit('chat message', msg);
         const saveMsg = new Message({ msg: msg, userId: socket.id })
-        saveMsg.save().then(() => console.log('message saved successfully'))
+        const save = await saveMsg.save();
+        console.log(save);
     });
 });
 
