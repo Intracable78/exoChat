@@ -9,8 +9,12 @@ const io = new Server(server)
 
 //mongoDb package;
 
-const { MongoClient, ObjectId } = require('mongodb');
-const client = new MongoClient('mongodb://localhost:27017');
+
+const mongoose = require('mongoose');
+const client = mongoose.connect('mongodb://localhost:27017/databaseExo');
+const Message = mongoose.model('message', { msg: String, userId: String });
+
+
 
 //link html file with js file
 
@@ -21,9 +25,11 @@ app.get('/', (req, res) => {
 let messageDatabase;
 
 io.on('connection', (socket) => {
+    console.log(messageDatabase)
     socket.on('chat message', (msg) => {
         io.emit('chat message', msg);
-        messageDatabase.insert({ msg: msg, userId: socket.id })
+        const saveMsg = new Message({ msg: msg, userId: socket.id })
+        saveMsg.save().then(() => console.log('message saved successfully'))
     });
 });
 
@@ -31,8 +37,3 @@ server.listen(3000, () => {
     console.log('listening on *:3000');
 });
 
-client.connect(() => {
-    const database = client.db('databaseExo');
-    messageDatabase = database.collection('message');
-
-});
